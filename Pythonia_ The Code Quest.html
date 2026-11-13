@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Pythonia: The Code Quest</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#efe0b8;--bg2:#e2cd98;--card:#fbf4de;--ink:#2e2011;--acc:#8c2323;--line:#b58a3a;--btn:#7a4f08;--btnink:#fff6e0;--tbg:#1d1511;--tink:#a6e8a0;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#140e1f;--bg2:#221636;--card:#2b1e40;--ink:#ecdfc2;--acc:#e0533f;--line:#c99a3e;--btn:#e6b64f;--btnink:#2a1805;--tbg:#0c0810}}
+:root[data-theme="dark"]{--bg:#140e1f;--bg2:#221636;--card:#2b1e40;--ink:#ecdfc2;--acc:#e0533f;--line:#c99a3e;--btn:#e6b64f;--btnink:#2a1805;--tbg:#0c0810}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:linear-gradient(var(--bg),var(--bg2)) fixed;color:var(--ink);font:16px/1.6 Georgia,serif}
+h1,h2,h3{font-family:Cinzel,Georgia,serif;margin:.3em 0}
+header{text-align:center;padding:18px 10px 4px;border-bottom:3px double var(--line)}
+h1{font-size:clamp(1.4rem,5vw,2.2rem);color:var(--acc)}
+main{display:grid;grid-template-columns:300px 1fr;gap:16px;max-width:1100px;margin:16px auto;padding:0 12px}
+@media(max-width:800px){main{grid-template-columns:1fr}}
+.lvl,.panel{background:var(--card);border:2px solid var(--line);border-radius:12px;padding:12px;margin-bottom:12px}
+.lvl h3{font-size:1rem}.lock{opacity:.55}
+button{font:inherit;cursor:pointer;background:var(--btn);color:var(--btnink);border:0;border-radius:8px;padding:8px 14px;margin:6px 6px 6px 0}
+.ch{display:block;width:100%;text-align:left;background:none;color:var(--ink);border:1px solid var(--line);margin:4px 0}
+.ch.on{background:var(--line);color:#1d1208}
+.tabs button{opacity:.6}.tabs button.on{opacity:1;outline:2px solid var(--acc)}
+pre,textarea{background:var(--tbg);color:var(--tink);font:14px/1.5 ui-monospace,Consolas,monospace;border-radius:8px;padding:12px;overflow-x:auto;margin:8px 0}
+textarea{width:100%;box-sizing:border-box;min-height:220px;border:2px solid var(--line);resize:vertical}
+#out{min-height:90px;white-space:pre-wrap}.e{color:#ff7b6b}
+.crumb{font-size:.85rem;opacity:.75}
+.quest{border-left:4px solid var(--acc);padding:6px 12px;margin:10px 0;background:rgba(140,35,35,.08)}
+code{background:rgba(120,90,30,.18);padding:1px 5px;border-radius:4px}
+#toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--acc);color:#fff;padding:10px 18px;border-radius:10px;display:none;max-width:90%;text-align:center}
+</style></head><body>
+<header><h1>⚔️ Pythonia: The Code Quest</h1><p>Learn Python step by step, one level at a time.</p></header>
+<main>
+<aside id="map"></aside>
+<section>
+<nav class="tabs"><button id="t0">📜 Lesson</button><button id="t1">🔥 Practice Arena</button></nav>
+<div id="lesson" class="panel"></div>
+<div id="arena" class="panel" hidden>
+<h2>Practice Arena</h2>
+<p>Type or paste Python code, then press Run. Press Refresh to clear everything and start fresh.</p>
+<textarea id="ed" spellcheck="false" placeholder="Write your Python code here..."></textarea>
+<button id="run">▶ Run</button><button id="ref">⟳ Refresh</button>
+<pre id="out">Output will appear here.</pre>
+</div>
+</section></main>
+<div id="toast"></div>
+<script>
+const L=[
+{n:"Village of Beginnings",ic:"🏘️",c:[
+{t:"What is code?",h:`<p>A computer is incredibly fast but has no imagination: it does exactly what it is told, nothing more. <b>Code</b> is a list of written instructions, like a recipe or a spell scroll, that tells the computer what to do.</p><p><b>Python</b> is one language for writing those instructions. It reads almost like English, which makes it perfect for beginners.</p><p>You type code into a <b>code editor</b> (a text box made for code) and then <b>run</b> it. The computer reads your lines from top to bottom, one by one, and shows you the <b>output</b>.</p>`,x:`print("Hello, adventurer!")`,q:`Press “Try it”, then press Run in the Practice Arena and watch the output appear.`},
+{t:"Your first spell: print()",h:`<p><code>print()</code> is a built-in spell that shows something on the screen.</p><p>Text inside quotes is called a <b>string</b> (a string of letters). The quotes tell Python “this is plain text, not a command”. The brackets <code>( )</code> hold whatever you want to show.</p><p>Python runs each line in order, and each <code>print</code> starts a new line.</p>`,x:`print("I wake up in a village.")
+print("A quest begins!")`,q:`Print a line that includes your own hero name.`},
+{t:"Comments: notes for humans",h:`<p>A line that starts with <code>#</code> is a <b>comment</b>. Python ignores it completely. Coders leave comments to remember what their code does and why.</p>`,x:`# This line is ignored by Python
+print("Comments are invisible!")  # notes can sit here too`,q:`Add your own comment above a print line and run it.`},
+{t:"Variables: storage chests",h:`<p>A <b>variable</b> is a labelled chest that stores a value. You make one with <code>=</code>, which means “put this value into the chest with this name” (it is not the maths “equals”).</p><p>Names have no spaces; use letters, numbers and underscores like <code>hero_name</code>. Capitals matter: <code>Gold</code> and <code>gold</code> are different chests. A variable can be changed later.</p>`,x:`hero = "Aria"
+gold = 10
+print(hero)
+print(gold)
+gold = 25
+print(gold)`,q:`Create a variable for your age and print it.`}]},
+{n:"Forest of Data",ic:"🌲",c:[
+{t:"Numbers and math",h:`<p>Python is a calculator. Whole numbers are <b>integers</b>; numbers with a decimal point are <b>floats</b>. Symbols that do maths are called <b>operators</b>:</p><p><code>+</code> add, <code>-</code> subtract, <code>*</code> multiply, <code>/</code> divide, <code>//</code> divide and drop the decimals, <code>%</code> remainder, <code>**</code> power.</p>`,x:`gold = 10
+print(gold + 5)
+print(gold * 3)
+print(7 // 2)
+print(7 % 2)
+print(2 ** 3)`,q:`Work out how many hours are in a week using <code>*</code>.`},
+{t:"Strings: working with text",h:`<p>Strings can be joined with <code>+</code> and repeated with <code>*</code>. They also have helpers: <code>len()</code> counts characters, <code>.upper()</code> and <code>.lower()</code> change the case. <code>type()</code> tells you what kind of value you have.</p>`,x:`name = "Aria"
+print("Hello " + name)
+print("Ha" * 3)
+print(len(name))
+print(name.upper())
+print(type(name))`,q:`Store your name in a variable and print it in capital letters.`},
+{t:"f-strings: fill in the blanks",h:`<p>An <b>f-string</b> has an <code>f</code> before the opening quote. Anything inside curly braces <code>{ }</code> is swapped for its value, even small calculations.</p>`,x:`hero = "Aria"
+hp = 100
+print(f"{hero} has {hp} health.")
+print(f"After a hit: {hp - 15}")`,q:`Make an f-string that prints your name and your age.`}]},
+{n:"Cave of Decisions",ic:"🕳️",c:[
+{t:"True or False",h:`<p>Programs make decisions by asking yes/no questions. The answers are <code>True</code> or <code>False</code> (called <b>booleans</b>). Comparison operators ask the questions: <code>==</code> equal, <code>!=</code> not equal, <code>&lt;</code> <code>&gt;</code> <code>&lt;=</code> <code>&gt;=</code>.</p><p>Remember: one <code>=</code> stores a value, two <code>==</code> compare values.</p>`,x:`hp = 40
+print(hp > 50)
+print(hp == 40)
+print(hp != 40)`,q:`Change hp and predict each answer before you run it.`},
+{t:"if and else",h:`<p><code>if</code> runs code only when its condition is True. <code>else</code> runs when it is not. The line ends with a <b>colon</b>, and the lines that belong inside are <b>indented</b> (pushed in by 4 spaces). Indentation is how Python knows which lines belong together.</p><p>In the Practice Arena, the Tab key adds the 4 spaces for you.</p>`,x:`hp = 30
+if hp > 50:
+    print("You feel strong!")
+else:
+    print("You need a potion!")`,q:`Change hp to 80 and see which message appears.`},
+{t:"elif, and, or",h:`<p><code>elif</code> (“else if”) adds extra questions. Python checks from top to bottom and runs only the first one that is True. Combine questions with <code>and</code> (both must be true) and <code>or</code> (at least one must be true).</p>`,x:`gold = 60
+hp = 80
+if gold >= 100:
+    print("Buy the dragon sword!")
+elif gold >= 50 and hp > 50:
+    print("Buy a shield.")
+else:
+    print("Keep saving.")`,q:`Change gold and hp to trigger each of the three messages.`}]},
+{n:"Mountain of Loops",ic:"⛰️",c:[
+{t:"Lists: your backpack",h:`<p>A <b>list</b> holds many values in order, inside square brackets. Each item has a position number called an <b>index</b>, and counting starts at <b>0</b>, not 1. Add an item with <code>.append()</code>.</p>`,x:`bag = ["sword", "map", "apple"]
+print(bag)
+print(bag[0])
+bag.append("torch")
+print(len(bag))`,q:`Add two more items to the bag and print the whole list.`},
+{t:"for loops",h:`<p>A <b>loop</b> repeats code so you do not have to type it again and again. A <code>for</code> loop walks through a list one item at a time. <code>range(3)</code> produces the numbers 0, 1, 2. The indented lines are the ones that repeat.</p>`,x:`bag = ["sword", "map", "apple"]
+for item in bag:
+    print("You carry:", item)
+for i in range(3):
+    print("Step", i)`,q:`Use a loop to print the numbers 0 to 9.`},
+{t:"while loops",h:`<p>A <code>while</code> loop keeps repeating as long as its condition is True. Something inside the loop must change the condition, otherwise it never stops!</p>`,x:`hp = 3
+while hp > 0:
+    print("The dragon bites! HP:", hp)
+    hp = hp - 1
+print("The dragon flies away.")`,q:`Change the starting hp to 5 and run it again.`}]},
+{n:"Castle of Functions",ic:"🏰",c:[
+{t:"Functions: reusable spells",h:`<p>A <b>function</b> is a named block of code you can use again and again. You create it with <code>def</code>, then run (“call”) it by writing its name followed by brackets.</p>`,x:`def greet():
+    print("Welcome to the castle!")
+
+greet()
+greet()`,q:`Make a function that prints two lines, then call it three times.`},
+{t:"Parameters and return",h:`<p>A <b>parameter</b> is a value you hand to a function, written inside its brackets. <code>return</code> sends a result back out so you can store it or print it.</p>`,x:`def add(a, b):
+    return a + b
+
+total = add(4, 5)
+print(total)
+print(add(10, 20))`,q:`Write a function that multiplies two numbers and returns the answer.`},
+{t:"Dictionaries: labelled scrolls",h:`<p>A <b>dictionary</b> stores pairs of a <b>key</b> (the label) and a <b>value</b>, inside curly braces. You look things up by key instead of by position.</p>`,x:`hero = {"name": "Aria", "hp": 100}
+print(hero["name"])
+hero["hp"] = 80
+hero["gold"] = 25
+print(hero)`,q:`Make a dictionary describing yourself and print one value from it.`}]}
+];
+
+/* ---------- mini Python runner ---------- */
+const esc=s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const cv=e=>e.split(/("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*')/).map((p,i,a)=>{
+ if(i%2)return /(^|\W)f$/.test(a[i-1])?'`'+p.slice(1,-1).replace(/\{/g,'${')+'`':p;
+ if(i+1<a.length&&/(^|\W)f$/.test(p))p=p.slice(0,-1);
+ return p.replace(/\band\b/g,'&&').replace(/\bor\b/g,'||').replace(/\bnot\b/g,'!').replace(/([\w.)\]]+) *\/\/ *([\w.(]+)/g,'Math.floor($1/$2)').replace(/!=(?!=)/g,'!==').replace(/(?<![!=<>])==(?!=)/g,'===')}).join('');
+Object.defineProperty(Array.prototype,'append',{value(x){this.push(x)}});
+Object.defineProperty(String.prototype,'upper',{value(){return this.toUpperCase()}});
+Object.defineProperty(String.prototype,'lower',{value(){return this.toLowerCase()}});
+function runPy(src){
+ const out=[];let cl=0,steps=0;
+ const R=(v,top)=>v===true?'True':v===false?'False':v==null?'None':Array.isArray(v)?'['+v.map(x=>R(x)).join(', ')+']':typeof v==='string'?(top?v:"'"+v+"'"):typeof v==='object'?'{'+Object.keys(v).map(k=>R(k)+': '+R(v[k])).join(', ')+'}':String(v);
+ const g={True:true,False:false,None:null,print:(...a)=>out.push(a.map(x=>R(x,1)).join(' ')),len:x=>x.length,str:x=>R(x,1),int:x=>Math.trunc(Number(x)),float:Number,abs:Math.abs,max:(...a)=>Math.max(...a.flat()),min:(...a)=>Math.min(...a.flat()),round:(x,d=0)=>Math.round(x*10**d)/10**d,
+  range:(a,b,c=1)=>{if(b===undefined){b=a;a=0}const r=[];for(let i=a;c>0?i<b:i>b;i+=c)r.push(i);return r},
+  type:x=>"<class '"+(typeof x==='string'?'str':typeof x==='boolean'?'bool':Array.isArray(x)?'list':typeof x==='object'?'dict':Number.isInteger(x)?'int':'float')+"'>"};
+ class Ret{constructor(v){this.v=v}}const BRK={},CNT={};
+ const tick=()=>{if(++steps>50000)throw new Error("Your loop ran too many times. Is it stuck forever?")};
+ const ev=(e,s)=>new Function('s','with(s){return ('+cv(e)+')}')(s);
+ const sc=s=>{let q=null;for(let i=0;i<s.length;i++){const c=s[i];if(q){if(c==='\\')i++;else if(c===q)q=null}else if(c==='"'||c==="'")q=c;else if(c==='#')return s.slice(0,i)}return s};
+ const lines=[];src.replace(/\t/g,'    ').split('\n').forEach((r,i)=>{const s=sc(r);if(s.trim())lines.push({n:i+1,ind:s.match(/^ */)[0].length,t:s.trim()})});
+ let p=0;
+ const block=ind=>{const o=[];while(p<lines.length&&lines[p].ind>=ind){const l=lines[p++];if(l.ind>ind){cl=l.n;throw new Error("IndentationError: unexpected indent")}const n={n:l.n,t:l.t};if(l.t.endsWith(':'))n.body=(p<lines.length&&lines[p].ind>l.ind)?block(lines[p].ind):[];o.push(n)}return o};
+ const loopBody=(st,s)=>{try{run(st.body,s)}catch(e){if(e===BRK)return 1;if(e!==CNT)throw e}};
+ function run(b,s){for(let k=0;k<b.length;k++){const st=b[k],t=st.t;cl=st.n;let m;
+  if(/^if /.test(t)){let j=k,ran=false;for(;j<b.length;j++){const u=b[j].t;if(j>k&&!/^elif |^else:$/.test(u))break;cl=b[j].n;if(!ran&&(u==='else:'||ev(u.replace(/^(el)?if /,'').slice(0,-1),s))){run(b[j].body,s);ran=true}if(u==='else:'){j++;break}}k=j-1}
+  else if(m=t.match(/^for (\w+) in (.+):$/)){let it=ev(m[2],s);if(it&&!Array.isArray(it)&&typeof it==='object')it=Object.keys(it);for(const v of it){tick();s[m[1]]=v;if(loopBody(st,s))break}}
+  else if(m=t.match(/^while (.+):$/)){while(ev(m[1],s)){tick();if(loopBody(st,s))break}}
+  else if(m=t.match(/^def (\w+)\((.*)\):$/)){const ps=m[2].split(',').map(x=>x.trim()).filter(Boolean);s[m[1]]=(...a)=>{const c=Object.create(s);ps.forEach((q,i)=>c[q]=a[i]);try{run(st.body,c)}catch(e){if(e instanceof Ret)return e.v;throw e}}}
+  else if(m=t.match(/^return ?(.*)$/))throw new Ret(m[1]?ev(m[1],s):null);
+  else if(t==='break')throw BRK;else if(t==='continue')throw CNT;else if(t==='pass'){}
+  else if(m=t.match(/^([A-Za-z_]\w*)(\[.*\])? *([-+*\/]?)=(?!=)/)){if(!m[2]&&!(m[1] in s))s[m[1]]=undefined;new Function('s','with(s){'+cv(t)+'}')(s)}
+  else ev(t,s)}}
+ let err=false;
+ try{run(block(0),g)}catch(e){err=true;if(e===BRK||e===CNT||e instanceof Ret)e=new Error("SyntaxError: break/continue/return used in the wrong place");
+  let m=e.message||String(e);
+  if(e instanceof ReferenceError)m=m.replace(/(\w+) is not defined/,"NameError: name '$1' is not defined");
+  else if(e instanceof SyntaxError)m="SyntaxError: invalid syntax. Check your quotes, brackets and colons.";
+  else if(e instanceof TypeError)m="TypeError: "+m;
+  out.push("⚠ Line "+cl+" - "+m)}
+ return{out,err}}
+
+/* ---------- dashboard ---------- */
+const $=i=>document.getElementById(i);
+const done=new Set();let cur=[0,0];
+const lvDone=li=>L[li].c.every((_,i)=>done.has(li+'-'+i));
+const unl=li=>li===0||lvDone(li-1);
+function toast(m){const t=$('toast');t.textContent=m;t.style.display='block';clearTimeout(toast.h);toast.h=setTimeout(()=>t.style.display='none',3500)}
+function show(n){$('lesson').hidden=n===1;$('arena').hidden=n===0;$('t0').className=n?'':'on';$('t1').className=n?'on':''}
+function renderMap(){$('map').innerHTML=L.map((v,li)=>{const u=unl(li);return `<div class="lvl ${u?'':'lock'}"><h3>${u?(lvDone(li)?'✅':v.ic):'🔒'} Level ${li+1}: ${v.n}</h3>`+(u?v.c.map((c,ci)=>`<button class="ch ${cur[0]==li&&cur[1]==ci?'on':''}" onclick="openCh(${li},${ci})">${done.has(li+'-'+ci)?'★':'☆'} ${c.t}</button>`).join(''):'<small>Finish the previous level to unlock this one.</small>')+'</div>'}).join('')}
+function openCh(li,ci){cur=[li,ci];const c=L[li].c[ci];
+ $('lesson').innerHTML=`<div class="crumb">Level ${li+1}: ${L[li].n} · Chapter ${ci+1} of ${L[li].c.length}</div><h2>${c.t}</h2>${c.h}<h3>Example</h3><pre>${esc(c.x)}</pre><button onclick="send()">🔥 Try it in the Practice Arena</button><div class="quest"><b>🎯 Your quest:</b> ${c.q}</div><button onclick="finish()">✅ Chapter complete</button>`;
+ show(0);renderMap();scrollTo(0,0)}
+function send(){$('ed').value=L[cur[0]].c[cur[1]].x;show(1)}
+function finish(){const[li,ci]=cur;done.add(li+'-'+ci);
+ if(ci<L[li].c.length-1){openCh(li,ci+1);return}
+ renderMap();
+ if(!lvDone(li)){toast("Finish every chapter in this level to unlock the next one.");return}
+ if(li<L.length-1){toast("🎉 Level "+(li+1)+" complete! Level "+(li+2)+" unlocked.");openCh(li+1,0)}
+ else toast("🏆 You have completed all the levels of Pythonia!")}
+$('t0').onclick=()=>show(0);$('t1').onclick=()=>show(1);
+$('run').onclick=()=>{const r=runPy($('ed').value);$('out').innerHTML=r.out.map(l=>l.startsWith('⚠')?`<span class="e">${esc(l)}</span>`:esc(l)).join('\n')||'(Nothing was printed. Use print() to show something.)'};
+$('ref').onclick=()=>{$('ed').value='';$('out').textContent='Output will appear here.';$('ed').focus()};
+$('ed').onkeydown=e=>{if(e.key==='Tab'){e.preventDefault();const s=e.target.selectionStart;e.target.setRangeText('    ',s,e.target.selectionEnd,'end')}};
+openCh(0,0);
+</script></body></html>
